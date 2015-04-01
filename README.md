@@ -38,8 +38,10 @@ type Analyzer interface {
 
 ````
 
-#### h2object.io 服务响应分析
+#### h2o 服务响应分析
+
+系统默认实现了 [h2o](https://github.com/h2object/h2o) 服务的响应分析
 
 #### api.dnspod.com API服务响应分析
 
-	请参考[GoDNSPOD](https://github.com/h2object/GoDNSPOD)
+请参考[GoDNSPOD](https://github.com/h2object/GoDNSPOD)
