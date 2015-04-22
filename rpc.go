@@ -41,16 +41,14 @@ func BuildHttpsURL(host string, uri string, vals url.Values) *url.URL {
 // --------------------------------------------------------------------
 
 type Client struct {
-	logger Logger
 	c *http.Client
 	analyzer Analyzer
 }
 
 var DefaultClient = &Client{c: http.DefaultClient, analyzer: H2OAnalyser{}}
 
-func NewClient(l Logger, c *http.Client, analyzer Analyzer) *Client {
+func NewClient(c *http.Client, analyzer Analyzer) *Client {
 	return &Client{
-		logger: l,
 		c: c,
 		analyzer: analyzer,
 	}
@@ -68,7 +66,7 @@ type Analyzer interface {
 }
 
 // --------------------------------------------------------------------
-func (r *Client) sent(method string, u *url.URL, bodyType string, body io.Reader, bodyLength int) (resp *http.Response, err error) {
+func (r *Client) sent(l Logger, method string, u *url.URL, bodyType string, body io.Reader, bodyLength int) (resp *http.Response, err error) {
 	var req *http.Request
 
 	upperMethod := strings.ToUpper(method)
@@ -93,12 +91,11 @@ func (r *Client) sent(method string, u *url.URL, bodyType string, body io.Reader
 		return
 	}
 	
-	return r.do(req)
+	return r.do(l, req)
 }
 
-func (r *Client) do(req *http.Request) (resp *http.Response, err error) {
-
-	if r.logger != nil {
+func (r *Client) do(l Logger,req *http.Request) (resp *http.Response, err error) {
+	if l != nil {
 		req.Header.Set("X-Reqid", r.logger.ReqId())
 	}
 
@@ -108,10 +105,10 @@ func (r *Client) do(req *http.Request) (resp *http.Response, err error) {
 		return
 	}
 
-	if r.logger != nil {
+	if l != nil {
 		details := resp.Header["X-Log"]
 		if len(details) > 0 {
-			r.logger.Xput(details)
+			l.Xput(details)
 		}
 	}
 	return
@@ -121,95 +118,95 @@ func (r *Client) Event() error {
 	return nil
 }
 
-func (r *Client) Get(u *url.URL, ret interface{}) error {
-	resp, err := r.sent("GET", u, "", nil, 0)
+func (r *Client) Get(l Logger, u *url.URL, ret interface{}) error {
+	resp, err := r.sent(l, "GET", u, "", nil, 0)
 	if err != nil {
 		return err
 	}
 	return r.analyzer.Analyse(ret, resp)
 }
 
-func (r *Client) PostBinary(u *url.URL, rd io.Reader, length int64, ret interface{}) error {
-	resp, err := r.sent("POST", u, "application/octet-stream", rd, int(length))
+func (r *Client) PostBinary(l Logger, u *url.URL, rd io.Reader, length int64, ret interface{}) error {
+	resp, err := r.sent(l, "POST", u, "application/octet-stream", rd, int(length))
 	if err != nil {
 		return err
 	}
 	return r.analyzer.Analyse(ret, resp)
 }
 
-func (r *Client) PutBinary(u *url.URL, rd io.Reader, length int64, ret interface{}) error {
-	resp, err := r.sent("PUT", u, "application/octet-stream", rd, int(length))
+func (r *Client) PutBinary(l Logger, u *url.URL, rd io.Reader, length int64, ret interface{}) error {
+	resp, err := r.sent(l, "PUT", u, "application/octet-stream", rd, int(length))
 	if err != nil {
 		return err
 	}
 	return r.analyzer.Analyse(ret, resp)
 }
 
-func (r *Client) PostJson(u *url.URL, data interface{}, ret interface{}) error {
+func (r *Client) PostJson(l Logger, u *url.URL, data interface{}, ret interface{}) error {
 	msg, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	resp, err := r.sent("POST", u, "application/json", bytes.NewReader(msg), len(msg))
+	resp, err := r.sent(l, "POST", u, "application/json", bytes.NewReader(msg), len(msg))
 	if err != nil {
 		return err
 	}
 	return r.analyzer.Analyse(ret, resp)
 }
 
-func (r *Client) PutJson(u *url.URL, data interface{}, ret interface{}) error {
+func (r *Client) PutJson(l Logger, u *url.URL, data interface{}, ret interface{}) error {
 	msg, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	resp, err := r.sent("PUT", u, "application/json", bytes.NewReader(msg), len(msg))
+	resp, err := r.sent(l, "PUT", u, "application/json", bytes.NewReader(msg), len(msg))
 	if err != nil {
 		return err
 	}
 	return r.analyzer.Analyse(ret, resp)
 }
 
-func (r *Client) PatchJson(u *url.URL, data interface{}, ret interface{}) error {
+func (r *Client) PatchJson(l Logger, u *url.URL, data interface{}, ret interface{}) error {
 	msg, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	resp, err := r.sent("PATCH", u, "application/json", bytes.NewReader(msg), len(msg))
+	resp, err := r.sent(l, "PATCH", u, "application/json", bytes.NewReader(msg), len(msg))
 	if err != nil {
 		return err
 	}
 	return r.analyzer.Analyse(ret, resp)
 }
 
-func (r *Client) PostForm(u *url.URL, form map[string][]string, ret interface{}) error {
+func (r *Client) PostForm(l Logger, u *url.URL, form map[string][]string, ret interface{}) error {
 	msg := url.Values(form).Encode()
-	resp, err := r.sent("POST", u, "application/x-www-form-urlencoded", strings.NewReader(msg), len(msg))
+	resp, err := r.sent(l, "POST", u, "application/x-www-form-urlencoded", strings.NewReader(msg), len(msg))
 	if err != nil {
 		return err
 	}
 	return r.analyzer.Analyse(ret, resp)
 }
 
-func (r *Client) PutForm(u *url.URL, form map[string][]string, ret interface{}) error {
+func (r *Client) PutForm(l Logger, u *url.URL, form map[string][]string, ret interface{}) error {
 	msg := url.Values(form).Encode()
-	resp, err := r.sent("PUT", u, "application/x-www-form-urlencoded", strings.NewReader(msg), len(msg))
+	resp, err := r.sent(l, "PUT", u, "application/x-www-form-urlencoded", strings.NewReader(msg), len(msg))
 	if err != nil {
 		return err
 	}
 	return r.analyzer.Analyse(ret, resp)
 }
 
-func (r *Client) PatchForm(u *url.URL, form map[string][]string, ret interface{}) error {
+func (r *Client) PatchForm(l Logger, u *url.URL, form map[string][]string, ret interface{}) error {
 	msg := url.Values(form).Encode()
-	resp, err := r.sent("PATCH", u, "application/x-www-form-urlencoded", strings.NewReader(msg), len(msg))
+	resp, err := r.sent(l, "PATCH", u, "application/x-www-form-urlencoded", strings.NewReader(msg), len(msg))
 	if err != nil {
 		return err
 	}
 	return r.analyzer.Analyse(ret, resp)
 }
 
-func (r *Client) Delete(u *url.URL, ret interface{}) error {
-	resp, err := r.sent("DELETE", u, "", nil, 0)
+func (r *Client) Delete(l Logger, u *url.URL, ret interface{}) error {
+	resp, err := r.sent(l, "DELETE", u, "", nil, 0)
 	if err != nil {
 		return err
 	}
