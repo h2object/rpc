@@ -35,7 +35,10 @@ func TestRPC(t *testing.T) {
 		"name":"james",
 		"age":34,
 	}
-	err = DefaultClient.PostJson(u2, data, &ret)
+
+	DefaultClient := NewClient(H2OAnalyser{})
+
+	err = DefaultClient.PostJson(nil, u2, data, &ret)
 	assert.Nil(t, err)
 	log.Println("Post result:", ret)
 	ret = map[string]interface{}{}
@@ -45,40 +48,40 @@ func TestRPC(t *testing.T) {
 	mod := map[string]interface{}{
 		"sex":true,
 	}
-	err = DefaultClient.PatchJson(u3, mod, &ret)	
+	err = DefaultClient.PatchJson(nil, u3, mod, &ret)	
 	assert.Nil(t, err)
 	log.Println("Patch result:", ret)
 	ret = map[string]interface{}{}
 	
-	err = DefaultClient.Get(u3, &ret)
+	err = DefaultClient.Get(nil, u3, &ret)
 	assert.Nil(t, err)
 	log.Println("Get result:", ret)
 	ret = map[string]interface{}{}
 
-	err = DefaultClient.PutJson(u3, mod, &ret)	
+	err = DefaultClient.PutJson(nil, u3, mod, &ret)	
 	assert.Nil(t, err)
 	log.Println("Put result:", ret)
 	ret = map[string]interface{}{}
 
-	err = DefaultClient.Get(u3, &ret)
+	err = DefaultClient.Get(nil, u3, &ret)
 	assert.Nil(t, err)
 	log.Println("Get result:", ret)
 	ret = map[string]interface{}{}
 
-	err = DefaultClient.Delete(u3, &ret)	
+	err = DefaultClient.Delete(nil, u3, &ret)	
 	assert.Nil(t, err)
 	log.Println("Delete result:", ret)
 	ret = map[string]interface{}{}
 
-	err = DefaultClient.Get(u3, &ret)
-	assert.NotNil(t, err)
+	err = DefaultClient.Get(nil, u3, &ret)
+	assert.Nil(t, err)
 
-	err = DefaultClient.PostJson(u, data, &ret)
+	err = DefaultClient.PostJson(nil, u, data, &ret)
 	assert.Nil(t, err)
 	log.Println("Post result:", ret)
 	ret = map[string]interface{}{}
 
-	err = DefaultClient.Get(u, &ret)
+	err = DefaultClient.Get(nil, u, &ret)
 	assert.Nil(t, err)
 	log.Println("Get result:", ret)
 

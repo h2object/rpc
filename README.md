@@ -1,4 +1,4 @@
-httpRPC
+h2object/rpc
 ---
 
 RPC for normal HTTP request with a special response Analyser interface.
@@ -8,8 +8,11 @@ RPC for normal HTTP request with a special response Analyser interface.
 
 当前实现 http 常规请求接口,如下:
 
-*	PostBinary()
-*	PutBinary()
+*	Get()
+*	Delete()
+*	Post()
+*	Put()
+*	Patch()
 
 *	PostJson()
 *	PutJson()
@@ -18,10 +21,6 @@ RPC for normal HTTP request with a special response Analyser interface.
 *	PostForm()
 *	PutForm()
 *	PatchForm()
-
-*	Get()
-*	Delete()
-
 
 ### 响应分析
 
