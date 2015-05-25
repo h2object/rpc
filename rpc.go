@@ -96,7 +96,9 @@ func (c *Client) sent(l Logger, method string, u *url.URL, bodyType string, body
 	case "DELETE":
 		req, err = http.NewRequest(upperMethod, u.String(), body)
 		req.Header.Set("Content-Type", bodyType)
-		req.ContentLength = int64(bodyLength)
+		if bodyLength > 0 {
+			req.ContentLength = int64(bodyLength)	
+		}		
 		if err != nil {
 			return
 		}	
@@ -134,7 +136,6 @@ func (c *Client) do(l Logger,req *http.Request) (resp *http.Response, err error)
 	}
 	return
 }
-
 
 func (c *Client) Get(l Logger, u *url.URL, ret interface{}) error {
 	resp, err := c.sent(l, "GET", u, "", nil, 0)
@@ -239,6 +240,73 @@ func (c *Client) PatchForm(l Logger, u *url.URL, form map[string][]string, ret i
 	return c.analyzer.Analyse(ret, resp)
 }
 
+func (c *Client) PostMultiPartForm(l Logger, u *url.URL, multipart *MultipartForm, ret interface{}) error {
+	ct, err := multipart.ContentType()
+	if err != nil {
+		return err
+	}
 
+	rd, err := multipart.Reader()
+	if err != nil {
+		return err
+	}
+
+	sz, err := multipart.Size()
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.sent(l, "POST", u, ct, rd, sz)
+	if err != nil {
+		return err
+	}
+	return c.analyzer.Analyse(ret, resp)
+}
+
+func (c *Client) PutMultiPartForm(l Logger, u *url.URL, multipart *MultipartForm, ret interface{}) error {
+		ct, err := multipart.ContentType()
+	if err != nil {
+		return err
+	}
+
+	rd, err := multipart.Reader()
+	if err != nil {
+		return err
+	}
+
+	sz, err := multipart.Size()
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.sent(l, "PUT", u, ct, rd, sz)
+	if err != nil {
+		return err
+	}
+	return c.analyzer.Analyse(ret, resp)
+}
+
+func (c *Client) PatchMultiPartForm(l Logger, u *url.URL, multipart *MultipartForm, ret interface{}) error {
+	ct, err := multipart.ContentType()
+	if err != nil {
+		return err
+	}
+
+	rd, err := multipart.Reader()
+	if err != nil {
+		return err
+	}
+
+	sz, err := multipart.Size()
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.sent(l, "PATCH", u, ct, rd, sz)
+	if err != nil {
+		return err
+	}
+	return c.analyzer.Analyse(ret, resp)
+}
 
 
