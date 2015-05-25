@@ -22,6 +22,10 @@ RPC for normal HTTP request with a special response Analyser interface.
 *	PutForm()
 *	PatchForm()
 
+*	PostMultiPartForm()
+*	PutMultiPartForm()
+*	PatchMultiPartForm()
+
 ### 响应分析
 
 响应分析接口定义如下:
