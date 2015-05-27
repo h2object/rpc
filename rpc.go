@@ -145,6 +145,10 @@ func (c *Client) Get(l Logger, u *url.URL, ret interface{}) error {
 	return c.analyzer.Analyse(ret, resp)
 }
 
+func (c *Client) GetResponse(l Logger, u *url.URL) (*http.Response, error) {
+	return c.sent(l, "GET", u, "", nil, 0)
+}
+
 func (c *Client) Post(l Logger, u *url.URL, bodyType string, body io.Reader, length int64, ret interface{}) error {
 	resp, err := c.sent(l, "POST", u, bodyType, body, int(length))
 	if err != nil {
